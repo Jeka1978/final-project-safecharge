@@ -1,8 +1,10 @@
 package com.safecharge.finalproject;
 
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import com.safecharge.finalproject.services.JudgeService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.Map;
 
 /**
  * @author Evgeny Borisov
@@ -10,6 +12,15 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/music")
 public class MusicJudgeController {
+    @Autowired
+    private JudgeService judgeService;
+
+
+    @GetMapping("/artist")
+    public Map<String, Long> topWords(@RequestParam("name") String artist, @RequestParam("x") int x) {
+       return judgeService.topWords(artist, x);
+    }
+
 
     @GetMapping("/ping")
     public String ping(){
