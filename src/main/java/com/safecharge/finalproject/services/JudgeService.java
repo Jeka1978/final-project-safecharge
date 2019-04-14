@@ -51,9 +51,9 @@ public class JudgeService implements Serializable {
 
         Dataset<Row> dataset = dataFrame.groupBy(col(WORD)).agg(count(col(WORD)).as(AMOUNT))
                 .orderBy(col(AMOUNT).desc());
-        List<Row> rows = dataset.toJavaRDD().take(x);
-        //from now this code is running on driver -regular Java List
-        Map<String, Long> map = rows.stream().collect(Collectors.toMap(row -> (String) row.getAs(WORD), row -> (Long) row.getAs(AMOUNT)));
+        List<Row> rows1 = dataset.takeAsList(x);
+        Map<String, Long> map = rows1.stream().collect(Collectors.toMap(row -> (String) row.getAs(WORD), row -> (Long) row.getAs(AMOUNT)));
+
         return map;
 
 
