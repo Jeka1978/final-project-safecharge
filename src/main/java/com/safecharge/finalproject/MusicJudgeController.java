@@ -21,6 +21,14 @@ public class MusicJudgeController {
        return judgeService.topWords(artist, x);
     }
 
+    @GetMapping("/compare/{artist1}/{artist2}/{x}")
+    public long compare(@PathVariable("artist1") String artist1,
+                        @PathVariable("artist2") String artist2,
+                        @PathVariable("x") int x) {
+        return judgeService.compare(artist1, artist2, x);
+
+    }
+
 
     @GetMapping("/ping")
     public String ping(){

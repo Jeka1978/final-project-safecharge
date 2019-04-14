@@ -17,7 +17,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import static org.apache.spark.sql.functions.*;
+import static org.apache.spark.sql.functions.col;
+import static org.apache.spark.sql.functions.count;
 
 /**
  * @author Evgeny Borisov
@@ -28,7 +29,7 @@ public class JudgeService implements Serializable {
     public static final String WORD = "word";
     private static final String AMOUNT = "amount";
     @Autowired
-    private  transient JavaSparkContext sc;
+    private transient JavaSparkContext sc;
 
     @Autowired
     private transient SQLContext sqlContext;
@@ -40,10 +41,10 @@ public class JudgeService implements Serializable {
     private Broadcast<UserConf> userConfBroadcast;
 
     public Map<String, Long> topWords(String artist, int x) {
-        JavaRDD<String> rdd = sc.textFile("songs/" + artist + "/*");
+        JavaRDD<String> rdd = getArtistSongs(artist);
         JavaRDD<Row> wordsRdd = rdd.map(String::toLowerCase)
                 .flatMap(WordsUtil::getWords)
-                .filter(word->this.userConfBroadcast.value().isNotGarbage(word))
+                .filter(word -> this.userConfBroadcast.value().isNotGarbage(word))
                 .map(RowFactory::create);
 
         Dataset<Row> dataFrame = sparkSession.createDataFrame(wordsRdd, buildSchema());
@@ -57,6 +58,15 @@ public class JudgeService implements Serializable {
         return map;
 
 
+    }
+
+    public long compare(String artist1, String artist2, int x) {
+        Map<String, Long> otherArtistWords = topWords(artist2, x);
+        return topWords(artist1, x).keySet().stream().filter(otherArtistWords::containsKey).count();
+    }
+
+    private JavaRDD<String> getArtistSongs(String artist) {
+        return sc.textFile("songs/" + artist + "/*");
     }
 
 
